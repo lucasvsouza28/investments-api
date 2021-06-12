@@ -51,6 +51,7 @@ namespace CaseBackend.Application.Query.Handlers
                 // Verifica se resultado já está no cache, se estiver, retorna
                 if (_cache.TryGetValue(cacheKey, out Response<GetInvestmentsResponse> cachedResponse))
                 {
+                    _logger.LogInformation($"{cachedResponse.Value.Investimentos.Count()} registros foram encontrados no cache");
                     return cachedResponse;
                 }
 
@@ -98,7 +99,7 @@ namespace CaseBackend.Application.Query.Handlers
 
             if (fundsResponse?.Value != null) investments.AddRange(fundsResponse.Value.ToInvestment());
 
-            _logger.LogInformation($"{investments.Count} foram retornados no total");
+            _logger.LogInformation($"{investments.Count} investimentos foram retornados no total");
 
             return investments;
         }
