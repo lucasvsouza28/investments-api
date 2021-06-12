@@ -9,11 +9,8 @@ namespace CaseBackend.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class InvestmentsController : ControllerBase
+    public class InvestmentsController : Controller
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<InvestmentsController> _logger;
-
         public InvestmentsController(
             IMediator mediator,
             ILogger<InvestmentsController> logger
@@ -23,8 +20,16 @@ namespace CaseBackend.Api.Controllers
             _logger = logger;
         }
 
+        #region Fields
+
+        private readonly IMediator _mediator;
+        private readonly ILogger<InvestmentsController> _logger;
+
+        #endregion
+
         [HttpGet]
-        public async Task<IActionResult> Get()
+        [Route("/investments")]
+        public async Task<IActionResult> GetInvestments()
         {
             try
             {
@@ -37,7 +42,7 @@ namespace CaseBackend.Api.Controllers
             }
             catch (Exception ex)
             {
-                string message = "There was an error to retrieve user investments";
+                string message = "Ocorreu um erro ao buscar investimentos";
                 _logger.LogError(ex, message);
 
                 return BadRequest(message);

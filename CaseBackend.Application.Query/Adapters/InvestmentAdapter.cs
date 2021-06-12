@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CaseBackend.Application.Query.Adapters
 {
-    internal static class InvestimentoAdapter
+    internal static class InvestmentAdapter
     {
         /// <summary>
         /// Retorna DTO

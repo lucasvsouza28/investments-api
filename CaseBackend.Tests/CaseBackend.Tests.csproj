@@ -16,8 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CaseBackend.Api\CaseBackend.Api.csproj" />
     <ProjectReference Include="..\CaseBackend.Application.Domain\CaseBackend.Application.Domain.csproj" />
     <ProjectReference Include="..\CaseBackend.Application.Query\CaseBackend.Application.Query.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>

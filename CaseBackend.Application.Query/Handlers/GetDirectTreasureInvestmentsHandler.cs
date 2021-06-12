@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CaseBackend.Application.Query.Handlers
 {
-    public class GetDirectTreasureInvestmentsHandler : IRequestHandler<GetDirectTreasureInvestmentsQuery, Response<IEnumerable<TesouroDireto>>>
+    public class GetDirectTreasureInvestmentsHandler : IRequestHandler<GetDirectTreasureInvestmentsQuery, Response<IEnumerable<DirectTreasure>>>
     {
         public GetDirectTreasureInvestmentsHandler(
             ILogger<GetDirectTreasureInvestmentsHandler> logger,
@@ -30,9 +30,9 @@ namespace CaseBackend.Application.Query.Handlers
 
         #endregion
 
-        public async Task<Response<IEnumerable<TesouroDireto>>> Handle(GetDirectTreasureInvestmentsQuery request, CancellationToken cancellationToken)
+        public async Task<Response<IEnumerable<DirectTreasure>>> Handle(GetDirectTreasureInvestmentsQuery request, CancellationToken cancellationToken)
         {
-            var response = new Response<IEnumerable<TesouroDireto>>();
+            var response = new Response<IEnumerable<DirectTreasure>>();
 
             try
             {
@@ -40,7 +40,7 @@ namespace CaseBackend.Application.Query.Handlers
 
                 _logger.LogInformation($"Obtendo investimentos em tesouro direto de: {url}");
 
-                var restResponse = await _restClient.GetAsync<TesouroDiretoResponse>(new RestRequest(url));
+                var restResponse = await _restClient.GetAsync<DirectTreasureResponse>(new RestRequest(url));
 
                 if (restResponse != null)
                 {

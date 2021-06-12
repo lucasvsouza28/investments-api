@@ -3,9 +3,9 @@ using System;
 
 namespace CaseBackend.Application.Domain.Entities
 {
-    public class Fundos : BaseInvestment
+    public class Funds : BaseInvestment
     {
-        public Fundos()
+        public Funds()
         {
             this.InvestmentType = TypeOfInvestment.Funds;
         }

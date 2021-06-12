@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CaseBackend.Application.Query.Queries
 {
-    public class GetFundsInvestmentsQuery : IRequest<Response<IEnumerable<Fundos>>>
+    public class GetFundsInvestmentsQuery : IRequest<Response<IEnumerable<Funds>>>
     {
     }
 }

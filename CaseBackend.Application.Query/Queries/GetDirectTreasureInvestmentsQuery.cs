@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CaseBackend.Application.Query.Queries
 {
-    public class GetDirectTreasureInvestmentsQuery : IRequest<Response<IEnumerable<TesouroDireto>>>
+    public class GetDirectTreasureInvestmentsQuery : IRequest<Response<IEnumerable<DirectTreasure>>>
     {
     }
 }

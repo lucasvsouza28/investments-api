@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace CaseBackend.Application.Query.Responses
 {
-    public class TesouroDiretoResponse
+    public class FundsResponse
     {
-        public IEnumerable<TesouroDireto> Tds { get; set; }
+        public IEnumerable<Funds> Fundos { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace CaseBackend.Tests.Domain.Entities
         [Test]
         public void Should_Have_InvestmentType_Equals_DirectTreasure()
         {
-            TesouroDireto entity = new TesouroDireto();
+            DirectTreasure entity = new DirectTreasure();
 
             Assert.Multiple(() => {
                 Assert.IsNotNull(entity);
@@ -24,7 +24,7 @@ namespace CaseBackend.Tests.Domain.Entities
         [Test]
         public void Should_Have_IncomeTax_Equals_0_10_Percent()
         {
-            TesouroDireto entity = new TesouroDireto();
+            DirectTreasure entity = new DirectTreasure();
 
             Assert.Multiple(() => {
                 Assert.IsNotNull(entity);

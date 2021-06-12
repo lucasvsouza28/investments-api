@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CaseBackend.Application.Query.Handlers
 {
-    public class GetFundsInvestmentsHandler : IRequestHandler<GetFundsInvestmentsQuery, Response<IEnumerable<Fundos>>>
+    public class GetFundsInvestmentsHandler : IRequestHandler<GetFundsInvestmentsQuery, Response<IEnumerable<Funds>>>
     {
         public GetFundsInvestmentsHandler(
             ILogger<GetFundsInvestmentsHandler> logger,
@@ -30,9 +30,9 @@ namespace CaseBackend.Application.Query.Handlers
 
         #endregion
 
-        public async Task<Response<IEnumerable<Fundos>>> Handle(GetFundsInvestmentsQuery request, CancellationToken cancellationToken)
+        public async Task<Response<IEnumerable<Funds>>> Handle(GetFundsInvestmentsQuery request, CancellationToken cancellationToken)
         {
-            var response = new Response<IEnumerable<Fundos>>();
+            var response = new Response<IEnumerable<Funds>>();
 
             try
             {
@@ -40,7 +40,7 @@ namespace CaseBackend.Application.Query.Handlers
 
                 _logger.LogInformation($"Obtendo investimentos em Fundos de: {url}");
 
-                var restResponse = await _restClient.GetAsync<FundosResponse>(new RestRequest(url));
+                var restResponse = await _restClient.GetAsync<FundsResponse>(new RestRequest(url));
 
                 if (restResponse != null)
                 {

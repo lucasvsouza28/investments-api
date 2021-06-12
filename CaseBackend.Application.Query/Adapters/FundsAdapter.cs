@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace CaseBackend.Application.Query.Adapters
 {
-    internal static class FundosAdapter
+    internal static class FundsAdapter
     {
-        internal static Investment ToInvestment(this Fundos entity)
+        internal static Investment ToInvestment(this Funds entity)
         {
             if (entity == null) return null;
 
@@ -21,7 +21,7 @@ namespace CaseBackend.Application.Query.Adapters
             };
         }
 
-        internal static IEnumerable<Investment> ToInvestment(this IEnumerable<Fundos> entities)
+        internal static IEnumerable<Investment> ToInvestment(this IEnumerable<Funds> entities)
         {
             if (entities == null) yield return null;
 

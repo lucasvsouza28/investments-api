@@ -3,9 +3,9 @@ using System;
 
 namespace CaseBackend.Application.Domain.Entities
 {
-    public class TesouroDireto : BaseInvestment
+    public class DirectTreasure : BaseInvestment
     {
-        public TesouroDireto()
+        public DirectTreasure()
         {
             this.InvestmentType = TypeOfInvestment.DirectTreasure;
         }

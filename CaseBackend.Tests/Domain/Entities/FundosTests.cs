@@ -12,7 +12,7 @@ namespace CaseBackend.Tests.Domain.Entities
         [Test]
         public void Should_Have_InvestmentType_Equals_Funds()
         {
-            Fundos entity = new Fundos();
+            Funds entity = new Funds();
 
             Assert.Multiple(() => {
                 Assert.IsNotNull(entity);
@@ -23,7 +23,7 @@ namespace CaseBackend.Tests.Domain.Entities
         [Test]
         public void Should_Have_IncomeTax_Equals_0_15_Percent()
         {
-            Fundos entity = new Fundos();
+            Funds entity = new Funds();
 
             Assert.Multiple(() => {
                 Assert.IsNotNull(entity);
