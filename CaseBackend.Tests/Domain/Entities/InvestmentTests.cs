@@ -39,7 +39,7 @@ namespace CaseBackend.Tests.Domain.Entities
             entity.InvestedAmount = investedAmount;
 
             double rentability = totalAmount - investedAmount;
-            double incomeTax = rentability - (rentability * (investmentType == TypeOfInvestment.DirectTreasure ? 10 :
+            double incomeTax = (rentability * (investmentType == TypeOfInvestment.DirectTreasure ? 10 :
                                                        investmentType == TypeOfInvestment.Funds ? 15 : 5) / 100);
 
             Assert.Multiple(() => {

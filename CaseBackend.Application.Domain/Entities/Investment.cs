@@ -24,7 +24,7 @@ namespace CaseBackend.Application.Domain.Entities
             get
             {
                 // Calcular IR
-                double incomeTax = this.Profitability - (this.Profitability * this.IncomeTaxDiscountPercentage);
+                double incomeTax = (this.Profitability * this.IncomeTaxDiscountPercentage);
 
                 return incomeTax;
             }
