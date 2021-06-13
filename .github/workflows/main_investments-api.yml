@@ -32,7 +32,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true        
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_34fdd2681719431a84830c4bc3f79dae }}/lucasvsouza28/investment-api:${{ github.sha }}        
+        tags: lucasvsouza28/investment-api:latest        
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,4 +49,4 @@ jobs:
         app-name: 'investments-api'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_e9da3860561742debaf820c888b35a4e }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_34fdd2681719431a84830c4bc3f79dae }}/lucasvsouza28/investment-api:${{ github.sha }}'
+        images: lucasvsouza28/investment-api:latest
