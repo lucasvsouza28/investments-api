@@ -3,9 +3,9 @@ using CaseBackend.Application.Query.Queries;
 using CaseBackend.Application.Query.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
+using Serilog;
 using System.Threading.Tasks;
 
 namespace CaseBackend.Tests.Api.Controllers
@@ -18,7 +18,7 @@ namespace CaseBackend.Tests.Api.Controllers
         [SetUp]
         public void Setup()
         {
-            var logger = Substitute.For<ILogger<InvestmentsController>>();
+            var logger = Substitute.For<ILogger>();
             _mediator = Substitute.For<IMediator>();
             _controller = new InvestmentsController(_mediator, logger);
         }
