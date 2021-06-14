@@ -1,7 +1,7 @@
 ﻿using CaseBackend.Application.Query.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace CaseBackend.Api.Controllers
     {
         public InvestmentsController(
             IMediator mediator,
-            ILogger<InvestmentsController> logger
+            ILogger logger
             )
         {
             _mediator = mediator;
@@ -23,7 +23,7 @@ namespace CaseBackend.Api.Controllers
         #region Fields
 
         private readonly IMediator _mediator;
-        private readonly ILogger<InvestmentsController> _logger;
+        private readonly ILogger _logger;
 
         #endregion
 
@@ -43,7 +43,7 @@ namespace CaseBackend.Api.Controllers
             catch (Exception ex)
             {
                 string message = "Ocorreu um erro ao buscar investimentos";
-                _logger.LogError(ex, message);
+                _logger.Error(ex, message);
 
                 return BadRequest(message);
             }
