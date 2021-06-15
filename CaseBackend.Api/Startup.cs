@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 
 namespace CaseBackend.Api
 {
@@ -21,26 +20,15 @@ namespace CaseBackend.Api
 
         public IConfiguration Configuration { get; }
 
-        private const string HealthChecksUrl = "/health-check";
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
 
-            services.AddHealthChecks()
-                    .AddTcpHealthCheck(setup => setup.AddHost("www.mocky.io", 80), name: "Valida acesso ao host 'www.mocky.io'");
-
             services
                 .AddLogging()
                 .AddMediatR(typeof(Response<>).Assembly)
-                .AddCustomServices(Configuration)
-                .AddHealthChecksUI(setup =>
-                {
-                    setup.AddHealthCheckEndpoint("Investments API Health Checks", HealthChecksUrl);
-                    setup.SetEvaluationTimeInSeconds(TimeSpan.FromMinutes(1).Seconds);
-                })
-                .AddInMemoryStorage();
+                .AddCustomServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,12 +44,13 @@ namespace CaseBackend.Api
                .UseHealthChecksUI(setup =>
                {
                    setup.UIPath = "/health-check-ui";
+                   setup.ApiPath = "/health-check-ui-api";
                })
                .UseEndpoints(endpoints =>
                {
                    endpoints.MapControllers();
 
-                   endpoints.MapHealthChecks(HealthChecksUrl, new HealthCheckOptions
+                   endpoints.MapHealthChecks("/health-check", new HealthCheckOptions
                    {
                        Predicate = _ => true,
                        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
