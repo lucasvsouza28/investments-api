@@ -5,9 +5,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
-using RestSharp;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace CaseBackend.Tests.Application.Query
 {
@@ -20,14 +20,14 @@ namespace CaseBackend.Tests.Application.Query
         {
             var logger = Substitute.For<ILogger<GetInvestmentsHandler>>();
             var mediator = Substitute.For<IMediator>();
-            var cache = Substitute.For<IMemoryCache>();
+            var cache = Substitute.For<IDistributedCache>();
             _handler = Substitute.For<GetInvestmentsHandler>(logger, mediator, cache);
         }
 
         [Test]
         public async Task Should_Return_Response_With_No_Exceptions()
         {
-            var response = await this._handler.Handle(new GetInvestmentsQuery(), CancellationToken.None);
+            var response = await _handler.Handle(new GetInvestmentsQuery(), CancellationToken.None);
 
             Assert.Multiple(() =>
             {

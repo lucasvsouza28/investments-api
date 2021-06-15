@@ -1,11 +1,13 @@
-﻿using CaseBackend.Application.Query.Handlers;
+﻿using System.Net.Http;
+using CaseBackend.Application.Query.Handlers;
 using CaseBackend.Application.Query.Queries;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
-using RestSharp;
 using System.Threading;
 using System.Threading.Tasks;
+using CaseBackend.Application.Domain.Settings;
+using Microsoft.Extensions.Options;
 
 namespace CaseBackend.Tests.Application.Query
 {
@@ -17,14 +19,15 @@ namespace CaseBackend.Tests.Application.Query
         public void Setup()
         {
             var logger = Substitute.For<ILogger<GetFundsInvestmentsHandler>>();
-            var restClient = Substitute.For<IRestClient>();
-            _handler = Substitute.For<GetFundsInvestmentsHandler>(logger, restClient);
+            var restClient = Substitute.For<IHttpClientFactory>();
+            var options = Substitute.For<IOptions<EndpointsSettings>>();
+            _handler = Substitute.For<GetFundsInvestmentsHandler>(logger, restClient, options);
         }
 
         [Test]
         public async Task Should_Return_Response_With_No_Exceptions()
         {
-            var response = await this._handler.Handle(new GetFundsInvestmentsQuery(), CancellationToken.None);
+            var response = await _handler.Handle(new GetFundsInvestmentsQuery(), CancellationToken.None);
 
             Assert.Multiple(() =>
             {

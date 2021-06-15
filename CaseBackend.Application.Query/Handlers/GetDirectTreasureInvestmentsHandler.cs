@@ -3,12 +3,15 @@ using CaseBackend.Application.Query.Queries;
 using CaseBackend.Application.Query.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CaseBackend.Application.Domain.Settings;
+using Microsoft.Extensions.Options;
 
 namespace CaseBackend.Application.Query.Handlers
 {
@@ -16,17 +19,20 @@ namespace CaseBackend.Application.Query.Handlers
     {
         public GetDirectTreasureInvestmentsHandler(
             ILogger<GetDirectTreasureInvestmentsHandler> logger,
-            IRestClient restClient
+            IHttpClientFactory httpClientFactory,
+            IOptions<EndpointsSettings> endpointsOptions
             )
         {
             _logger = logger;
-            _restClient = restClient;
+            _httpClient = httpClientFactory.CreateClient();
+            _endpointsSettings = endpointsOptions.Value;
         }
 
         #region Fields
 
         private readonly ILogger<GetDirectTreasureInvestmentsHandler> _logger;
-        private readonly IRestClient _restClient; 
+        private readonly HttpClient _httpClient;
+        private readonly EndpointsSettings _endpointsSettings;
 
         #endregion
 
@@ -36,16 +42,14 @@ namespace CaseBackend.Application.Query.Handlers
 
             try
             {
-                string url = "http://www.mocky.io/v2/5e3428203000006b00d9632a";
-
-                _logger.LogInformation($"Obtendo investimentos em tesouro direto de: {url}");
-
-                var restResponse = await _restClient.GetAsync<DirectTreasureResponse>(new RestRequest(url));
-
-                if (restResponse != null)
+                _logger.LogInformation("Obtendo investimentos em tesouro direto de: {url}", _endpointsSettings.TesouroDiretoUrl);
+                using var restResponse = await _httpClient.GetAsync(_endpointsSettings.TesouroDiretoUrl, cancellationToken);
+                if (restResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation($"{restResponse.Tds.Count()} investimentos em tesouro direto retornados");
-                    response.AddValue(restResponse.Tds);
+                    
+                    var dtr = await JsonSerializer.DeserializeAsync<DirectTreasureResponse>(await restResponse.Content.ReadAsStreamAsync(), cancellationToken: cancellationToken, options: _jsonOptions);
+                    _logger.LogInformation("{qty} investimentos em tesouro direto retornados", dtr.Tds.Count());
+                    response.AddValue(dtr.Tds);
                 }
             }
             catch (Exception ex)
@@ -55,5 +59,8 @@ namespace CaseBackend.Application.Query.Handlers
 
             return response;
         }
+
+        private static JsonSerializerOptions _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
     }
 }

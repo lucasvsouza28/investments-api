@@ -4,12 +4,12 @@ using CaseBackend.Application.Query.Dtos;
 using CaseBackend.Application.Query.Queries;
 using CaseBackend.Application.Query.Responses;
 using MediatR;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,7 +20,7 @@ namespace CaseBackend.Application.Query.Handlers
         public GetInvestmentsHandler(
             ILogger<GetInvestmentsHandler> logger,
             IMediator mediator,
-            IMemoryCache cache
+            IDistributedCache cache
             )
         {
             _logger = logger;
@@ -32,13 +32,13 @@ namespace CaseBackend.Application.Query.Handlers
 
         private readonly ILogger<GetInvestmentsHandler> _logger;
         private readonly IMediator _mediator;
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
 
         #endregion
 
         #region Constants
 
-        const string cacheKey = "Investments"; 
+        const string cacheKey = "Investments";
 
         #endregion
 
@@ -49,14 +49,24 @@ namespace CaseBackend.Application.Query.Handlers
             try
             {
                 // Verifica se resultado já está no cache, se estiver, retorna
-                if (_cache.TryGetValue(cacheKey, out Response<GetInvestmentsResponse> cachedResponse))
+
+                var fromCache = await _cache.GetAsync(cacheKey, cancellationToken);
+
+                if (fromCache?.Any() == true)
                 {
-                    _logger.LogInformation($"{cachedResponse.Value.Investimentos.Count()} registros foram encontrados no cache");
+
+                    var cachedResponse = JsonSerializer
+                        .Deserialize<Response<GetInvestmentsResponse>>(fromCache, _jsonOptions);
+
+                    _logger.LogInformation("{qty} registros foram encontrados no cache",
+                        cachedResponse.Value.Investimentos.Count());
+
                     return cachedResponse;
+
                 }
 
                 // Obtem investimentos de todos as fontes (Fundos, LCI e Tesouro Direto)
-                var investiments = await this.GetAllInvestments();
+                var investiments = await GetAllInvestments();
 
                 // Consolida as informações
                 IEnumerable<InvestimentoDTO> investimentoDTOs = investiments.ToDTO();
@@ -68,7 +78,8 @@ namespace CaseBackend.Application.Query.Handlers
                 });
 
                 // Insere resultado no cache
-                _cache.Set(cacheKey, response, DateTime.Now.AddDays(1).Date);
+                await _cache.SetAsync(cacheKey, JsonSerializer.SerializeToUtf8Bytes(response, _jsonOptions), _cacheOptions, cancellationToken);
+
             }
             catch (Exception ex)
             {
@@ -92,16 +103,23 @@ namespace CaseBackend.Application.Query.Handlers
             var fundsResponse = await _mediator.Send(new GetFundsInvestmentsQuery());
 
             var investments = new List<Investment>();
-            
+
             if (directTreasureResponse?.Value != null) investments.AddRange(directTreasureResponse.Value.ToInvestment());
 
             if (lciResponse?.Value != null) investments.AddRange(lciResponse.Value.ToInvestment());
 
             if (fundsResponse?.Value != null) investments.AddRange(fundsResponse.Value.ToInvestment());
 
-            _logger.LogInformation($"{investments.Count} investimentos foram retornados no total");
+            _logger.LogInformation("{qty} investimentos foram retornados no total", investments.Count);
 
             return investments;
         }
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+        private static readonly DistributedCacheEntryOptions _cacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpiration = DateTime.Today.AddDays(1).Date
+        };
+
     }
 }
