@@ -3,12 +3,15 @@ using CaseBackend.Application.Query.Queries;
 using CaseBackend.Application.Query.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CaseBackend.Application.Domain.Settings;
+using Microsoft.Extensions.Options;
 
 namespace CaseBackend.Application.Query.Handlers
 {
@@ -16,17 +19,20 @@ namespace CaseBackend.Application.Query.Handlers
     {
         public GetLCIInvestmentsHandler(
             ILogger<GetLCIInvestmentsHandler> logger,
-            IRestClient restClient
+            IHttpClientFactory httpClientFactory,
+            IOptions<EndpointsSettings> endpointOptions
             )
         {
             _logger = logger;
-            _restClient = restClient;
+            _httpClient = httpClientFactory.CreateClient();
+            _endpointSettings = endpointOptions.Value;
         }
 
         #region Fields
 
         private readonly ILogger<GetLCIInvestmentsHandler> _logger;
-        private readonly IRestClient _restClient; 
+        private readonly HttpClient _httpClient;
+        private readonly EndpointsSettings _endpointSettings;
 
         #endregion
 
@@ -36,16 +42,19 @@ namespace CaseBackend.Application.Query.Handlers
 
             try
             {
-                string url = "http://www.mocky.io/v2/5e3429a33000008c00d96336";
 
-                _logger.LogInformation($"Obtendo investimentos em LCI de: {url}");
 
-                var restResponse = await _restClient.GetAsync<LCIResponse>(new RestRequest(url));
+                _logger.LogInformation("Obtendo investimentos em LCI de: {url}", _endpointSettings.LciUrl);
 
-                if (restResponse != null)
+                using var restResponse = await _httpClient.GetAsync(_endpointSettings.LciUrl, cancellationToken);
+
+                if (restResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation($"{restResponse.Lcis.Count()} investimentos em LCI retornados");
-                    response.AddValue(restResponse.Lcis);
+
+                    var resp = await JsonSerializer.DeserializeAsync<LCIResponse>(await restResponse.Content.ReadAsStreamAsync(), cancellationToken: cancellationToken, options: _jsonOptions);
+
+                    _logger.LogInformation("{qty} investimentos em LCI retornados", resp.Lcis.Count());
+                    response.AddValue(resp.Lcis);
                 }
 
                 return response;
@@ -57,5 +66,8 @@ namespace CaseBackend.Application.Query.Handlers
 
             return response;
         }
+
+        private static JsonSerializerOptions _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
     }
 }

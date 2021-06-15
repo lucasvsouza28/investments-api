@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 
 namespace CaseBackend.Api
 {
@@ -21,8 +20,6 @@ namespace CaseBackend.Api
 
         public IConfiguration Configuration { get; }
 
-        private const string HealthChecksUrl = "http:////local/health-check";
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -31,18 +28,7 @@ namespace CaseBackend.Api
             services
                 .AddLogging()
                 .AddMediatR(typeof(Response<>).Assembly)
-                .AddCustomServices(Configuration)
-                .AddHealthChecksUI(setup =>
-                {
-                    //setup.AddHealthCheckEndpoint("Investments API Health Checks", "healthz");
-                    setup.SetEvaluationTimeInSeconds(TimeSpan.FromMinutes(1).Seconds);
-                })
-                .AddInMemoryStorage();
-
-            services.AddHealthChecks()
-                    .AddDnsResolveHealthCheck(setup => setup.ResolveHost("www.mocky.io"), name: "Valida DNS 'www.mocky.io'")
-                    .AddTcpHealthCheck(setup => setup.AddHost("www.mocky.io", 80), name: "Valida acesso ao host 'www.mocky.io'", timeout: TimeSpan.FromMinutes(5))
-                    ;
+                .AddCustomServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,7 +40,7 @@ namespace CaseBackend.Api
             }
 
             app.UseRouting()
-               //.UseHealthChecks("/healthz")
+               .UseHealthChecks("/health-check/status")
                .UseHealthChecksUI(setup =>
                {
                    setup.UIPath = "/health-check-ui";
@@ -64,7 +50,7 @@ namespace CaseBackend.Api
                {
                    endpoints.MapControllers();
 
-                   endpoints.MapHealthChecks("healthz", new HealthCheckOptions
+                   endpoints.MapHealthChecks("/health-check", new HealthCheckOptions
                    {
                        Predicate = _ => true,
                        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

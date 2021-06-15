@@ -1,0 +1,26 @@
+  version: "2.2"
+  services:
+    redis:
+        image: redis
+        container_name: redis
+        ports: 
+            - 6379:6379
+        networks:
+            - app
+
+    app:
+        image: investment-api:hc
+        container_name: investment-api
+        build:
+            context: .            
+        ports: 
+            - 5000:80        
+        networks:
+            - app
+        depends_on:
+            - redis
+    
+  networks:
+    app:
+        driver:
+            bridge
