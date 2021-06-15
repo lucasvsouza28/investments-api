@@ -3,12 +3,15 @@ using CaseBackend.Application.Query.Queries;
 using CaseBackend.Application.Query.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CaseBackend.Application.Domain.Settings;
+using Microsoft.Extensions.Options;
 
 namespace CaseBackend.Application.Query.Handlers
 {
@@ -16,17 +19,20 @@ namespace CaseBackend.Application.Query.Handlers
     {
         public GetFundsInvestmentsHandler(
             ILogger<GetFundsInvestmentsHandler> logger,
-            IRestClient restClient
+            IHttpClientFactory httpClientFactory,
+            IOptions<EndpointsSettings> endpointOptions
             )
         {
             _logger = logger;
-            _restClient = restClient;
+            _httpClient = httpClientFactory.CreateClient();
+            _endpointSettings = endpointOptions.Value;
         }
 
         #region Fields
 
         private readonly ILogger<GetFundsInvestmentsHandler> _logger;
-        private readonly IRestClient _restClient; 
+        private readonly HttpClient _httpClient;
+        private readonly EndpointsSettings _endpointSettings;
 
         #endregion
 
@@ -36,17 +42,17 @@ namespace CaseBackend.Application.Query.Handlers
 
             try
             {
-                string url = "http://www.mocky.io/v2/5e342ab33000008c00d96342";
 
-                _logger.LogInformation($"Obtendo investimentos em Fundos de: {url}");
 
-                var restResponse = await _restClient.GetAsync<FundsResponse>(new RestRequest(url));
+                _logger.LogInformation("Obtendo investimentos em Fundos de: {qty}", _endpointSettings.FundosInvestimentoUrl);
 
-                if (restResponse != null)
+                using var restResponse = await _httpClient.GetAsync(_endpointSettings.FundosInvestimentoUrl, cancellationToken);
+
+                if (restResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation($"{restResponse.Fundos.Count()} investimentos em Fundos retornados");
-
-                    response.AddValue(restResponse.Fundos);
+                    var fundos = await JsonSerializer.DeserializeAsync<FundsResponse>(await restResponse.Content.ReadAsStreamAsync(), cancellationToken: cancellationToken, options: _jsonOptions);
+                    _logger.LogInformation("{qty} investimentos em Fundos retornados", fundos.Fundos.Count());
+                    response.AddValue(fundos.Fundos);
                 }
 
                 return response;
@@ -58,5 +64,9 @@ namespace CaseBackend.Application.Query.Handlers
 
             return response;
         }
+
+        private static JsonSerializerOptions _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+
     }
 }

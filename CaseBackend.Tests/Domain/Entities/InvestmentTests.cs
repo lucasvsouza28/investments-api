@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using CaseBackend.Application.Domain.Entities;
 using CaseBackend.Application.Domain.Enum;
 using NUnit.Framework;

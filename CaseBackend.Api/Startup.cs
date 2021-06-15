@@ -1,4 +1,3 @@
-using CaseBackend.Api.HealthChecks;
 using CaseBackend.Application.Query.Responses;
 using CaseBackend.Infra.IoC;
 using HealthChecks.UI.Client;
@@ -8,7 +7,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using System;
 
@@ -30,18 +28,16 @@ namespace CaseBackend.Api
         {
             services.AddControllers();
 
-            services.AddHealthChecks()                
-                    .AddTypeActivatedCheck<InvestmentsApiHealthCheck>(Guid.NewGuid().ToString(), "Tesouro Direto", "http://www.mocky.io/v2/5e3428203000006b00d9632a")
-                    .AddTypeActivatedCheck<InvestmentsApiHealthCheck>(Guid.NewGuid().ToString(), "Fundos", "http://www.mocky.io/v2/5e342ab33000008c00d96342")
-                    .AddTypeActivatedCheck<InvestmentsApiHealthCheck>(Guid.NewGuid().ToString(), "LCI", "http://www.mocky.io/v2/5e3429a33000008c00d96336");
+            services.AddHealthChecks()
+                    .AddTcpHealthCheck(setup => setup.AddHost("www.mocky.io", 80), name: "Valida acesso ao host 'www.mocky.io'");
 
             services
                 .AddLogging()
                 .AddMediatR(typeof(Response<>).Assembly)
-                .AddMemoryCache()
-                .AddCustomServices()
-                .AddHealthChecksUI(setup => {
-                    setup.AddHealthCheckEndpoint("Investments API Health Checks", HealthChecksUrl);                    
+                .AddCustomServices(Configuration)
+                .AddHealthChecksUI(setup =>
+                {
+                    setup.AddHealthCheckEndpoint("Investments API Health Checks", HealthChecksUrl);
                     setup.SetEvaluationTimeInSeconds(TimeSpan.FromMinutes(1).Seconds);
                 })
                 .AddInMemoryStorage();
